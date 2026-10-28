@@ -10,5 +10,8 @@
 
 Data.lua
 Voices.lua
+VoicesOrc.lua
+VoicesTroll.lua
+VoicesDwarf.lua
 Core.lua
 Settings.lua

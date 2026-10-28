@@ -10,9 +10,21 @@ A WoW Forever and Classic Era roleplay addon. Target a friendly player whose cla
 
 ## Personalities
 
-Bold, Cheerful, Wise, Gruff, Roguish, Mystic, Scholarly and Timid (the same set as Campfire Tales Forever; a character's Campfire Tales personality is picked up on first login), plus Noble, Charming, Devout and Mercenary, or "A bit of everything". Each has 20 asks, 10 refreshes and 16 thank-yous, plus 4 asks for each class of your own (a timid warrior, a gruff mage, a charming warlock...), used 3 times in 10. 984 lines in all.
+Bold, Cheerful, Wise, Gruff, Roguish, Mystic, Scholarly and Timid (the same set as Campfire Tales Forever; a character's Campfire Tales personality is picked up on first login), plus Noble, Charming, Devout and Mercenary, or "A bit of everything". Each has 20 asks, 10 refreshes and 16 thank-yous, plus 4 asks for each class of your own (a timid warrior, a gruff mage, a charming warlock...), used 3 times in 10. 984 lines in all, times four with the accents below.
 
 Pick it per character in Esc > Options > AddOns > RpBuffBeg (with a Preview button), by right-clicking the icon, or with `/buffbeg persona <name>`.
+
+## Accents
+
+Orcs, trolls and dwarves don't talk like everyone else, so every one of those lines also comes in an orc, troll and dwarf version. Same personality and same joke, said their way:
+
+> Bob Smith, what be ya rate for some Blessing of Kings? Me good for it, mon. *(mercenary troll)*
+
+> Um, Bob Smith? Sorry tae bother ye... could I maybe have Arcane Intellect? Only if it's nae trouble, lad. *(timid dwarf)*
+
+> Bob Smith! You there. Power Word: Fortitude, on me. I put it to good use. Bloody use. *(bold orc)*
+
+Your race picks the accent (orc, troll or dwarf; everyone else speaks plainly). Only that one set of lines is kept in memory; the others are dropped at login.
 
 ## What you ask for
 
@@ -34,7 +46,7 @@ You never ask for a buff you already have, unless it's about to drop (20 minutes
 - **Key bindings** for both under Options > Keybindings > RpBuffBeg. They work with the interface hidden.
 - **Steps aside for EzMinion.** On a warlock with EzMinion loaded, RpBuffBeg stays off (no icon, bindings or options), since EzMinion already orders your buffs. Other classes are unaffected.
 
-Edit the lines in `Voices.lua` (`{name}`, `{buff}`, and `{me}`/`{my}`, which become "us"/"our" in a group) and the buffs in `Data.lua`.
+Edit the lines in `Voices.lua` (`{name}`, `{buff}`, and `{me}`/`{my}`, which become "us"/"our" in a group), their accented versions in `VoicesOrc.lua`, `VoicesTroll.lua` and `VoicesDwarf.lua` (dwarves also get `{lad}`: "lad" or "lass"), and the buffs in `Data.lua`.
 
 ## Install
 

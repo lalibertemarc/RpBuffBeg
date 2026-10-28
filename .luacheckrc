@@ -25,7 +25,7 @@ read_globals = {
     "ChatFrameUtil", "ChatFrame_AddMessageEventFilter",
     -- Global APIs
     "GetBuildInfo", "GetSpellInfo", "GetTime", "UnitBuff", "UnitClass", "UnitName", "UnitLevel", "UnitIsUnit", "UnitExists", "UnitIsPlayer",
-    "UnitIsFriend", "UnitIsDeadOrGhost", "IsInGroup", "SendChatMessage", "GetCVarBool", "IsShiftKeyDown", "InCombatLockdown",
+    "UnitIsFriend", "UnitIsDeadOrGhost", "UnitRace", "UnitSex", "IsInGroup", "SendChatMessage", "GetCVarBool", "IsShiftKeyDown", "InCombatLockdown",
     -- Other addons' saved variables
     "CampfireTalesForeverChar",
 }

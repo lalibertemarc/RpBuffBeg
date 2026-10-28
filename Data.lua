@@ -25,10 +25,22 @@ ns.PERSONA = {}
 for _, p in ipairs(ns.PERSONAS) do ns.PERSONA[p.key] = p end
 ns.DEFAULT_PERSONA = "cheerful"
 
+-- Accents: orcs, trolls and dwarves say the same lines in their own accent (Voices<Accent>.lua, one
+-- variant for every line in Voices.lua, same order); everyone else speaks plainly. Picked by race only.
+-- UnitRace's file name -> accent.
+ns.RACE_ACCENT = { Orc = "orc", Troll = "troll", Dwarf = "dwarf" }
+-- Filled by the Voices<Accent>.lua files: accent -> same shape as ns.VOICES / ns.CLASS_ASKS. At login
+-- your race's accent replaces ns.VOICES / ns.CLASS_ASKS and the rest are dropped (Core.lua LoadVoices).
+ns.ACCENT_VOICES = {}
+ns.ACCENT_CLASS_ASKS = {}
+
 -- Lines use {name} (target's full name), {buff} (buff name, asks and refreshes), and {me}/{my}: you
--- alone, or your whole party or raid when you're in one ("give us Arcane Intellect").
+-- alone, or your whole party or raid when you're in one ("give us Arcane Intellect"). Dwarf lines also
+-- use {lad}: "lad" or "lass" from your target's sex (UnitSex), "friend" when it's unknown.
 ns.ME = { solo = "me", group = "us" }
 ns.MY = { solo = "my", group = "our" }
+ns.LAD = { [2] = "lad", [3] = "lass" }
+ns.LAD_UNKNOWN = "friend"
 
 -- Chance that an ask comes from your class's own lines for your personality (ns.CLASS_ASKS) instead.
 ns.CLASS_CHANCE = 0.3

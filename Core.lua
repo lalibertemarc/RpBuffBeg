@@ -191,8 +191,21 @@ local function Speaker()
     return keys[math.random(#keys)]
 end
 
--- Lines of that kind ("asks", "refreshes", "thanks") for the speaker; asks come from your class's
--- own lines ns.CLASS_CHANCE of the time.
+-- Login: your race's accent (if any) becomes ns.VOICES / ns.CLASS_ASKS, and every other accent is
+-- dropped, so only one set of lines stays in memory. Nothing to keep at all when standing down.
+local function LoadVoices(keep)
+    local accent = keep and ns.RACE_ACCENT[select(2, UnitRace("player"))]
+    if accent and ns.ACCENT_VOICES[accent] then
+        ns.VOICES, ns.CLASS_ASKS = ns.ACCENT_VOICES[accent], ns.ACCENT_CLASS_ASKS[accent]
+        ns.accent = accent
+    end
+    if not keep then ns.VOICES, ns.CLASS_ASKS = nil, nil end
+    ns.ACCENT_VOICES, ns.ACCENT_CLASS_ASKS = nil, nil
+    collectgarbage()
+end
+
+-- Lines of that kind ("asks", "refreshes", "thanks") for the speaker; asks come from your class's own
+-- lines ns.CLASS_CHANCE of the time.
 local function Lines(kind, persona)
     if kind == "asks" then
         local own = ns.CLASS_ASKS[persona] and ns.CLASS_ASKS[persona][select(2, UnitClass("player"))]
@@ -201,16 +214,23 @@ local function Lines(kind, persona)
     return ns.VOICES[persona][kind]
 end
 
+-- "lad" or "lass" for the unit, "friend" when its sex is unknown or hidden.
+local function Lad(unit)
+    local sex = unit and UnitSex(unit)
+    return sex and not issecret(sex) and ns.LAD[sex] or ns.LAD_UNKNOWN
+end
+
 local lastPick = {} -- lines table -> index said last time
 
--- A random line of that kind (not the one said last time), with {name}, {buff}, {me} and {my} filled in.
-local function Line(kind, name, buffName)
+-- A random line of that kind (not the one said last time), with {name}, {buff}, {me}, {my} and {lad}
+-- (from unit, your target) filled in.
+local function Line(kind, name, buffName, unit)
     local lines = Lines(kind, Speaker())
     local i = math.random(#lines)
     if #lines > 1 and i == lastPick[lines] then i = i % #lines + 1 end
     lastPick[lines] = i
     local group = IsInGroup() and "group" or "solo"
-    local fill = { name = name, buff = buffName or "", me = ns.ME[group], my = ns.MY[group] }
+    local fill = { name = name, buff = buffName or "", me = ns.ME[group], my = ns.MY[group], lad = Lad(unit) }
     -- Function replacement, so a "%" in a name can't break gsub.
     return (lines[i]:gsub("{(%a+)}", function(key) return fill[key] end))
 end
@@ -219,7 +239,8 @@ end
 function ns.Preview()
     local p = ns.PERSONA[ns.PersonaKey()]
     local sample = buff.KINGS and buff.KINGS.name or "Blessing of Kings"
-    Print("In a " .. p.label:lower() .. " voice:")
+    local a = ns.accent
+    Print("In a " .. p.label:lower() .. " voice" .. (a and ", with " .. (a:find("^[aeiou]") and "an " or "a ") .. a .. " accent" or "") .. ":")
     for _, kind in ipairs({ "asks", "asks", "refreshes", "thanks" }) do
         DEFAULT_CHAT_FRAME:AddMessage("  " .. Line(kind, "Bob Smith", sample))
     end
@@ -291,7 +312,7 @@ local function Ask()
     local r = Evaluate("target")
     if not r then return Print("Your target's name is hidden by the game right now.") end
     if r.demand then
-        return SayOrWarn(Line(r.refresh and "refreshes" or "asks", r.name, buff[r.demand].name), r.name, r.class)
+        return SayOrWarn(Line(r.refresh and "refreshes" or "asks", r.name, buff[r.demand].name, "target"), r.name, r.class)
     end
     Print((#r.list == 0 and r.name .. " has no buff you need.")
         or (r.young and r.name .. " is too young to know the buff you need.")
@@ -302,7 +323,7 @@ end
 local function Thank()
     local name = ValidTarget("target") and FullName("target")
     if not name then return Print("Target a friendly player to thank.") end
-    SayOrWarn(Line("thanks", name), name, select(2, UnitClass("target")))
+    SayOrWarn(Line("thanks", name, nil, "target"), name, select(2, UnitClass("target")))
 end
 
 local function OpenSettings()
@@ -499,7 +520,7 @@ local COMMANDS = {
     [""]    = Ask,
     thanks  = Thank,
     persona = SetPersona,
-    say     = function() SetChannel("SAY") end,
+    say    = function() SetChannel("SAY") end,
     whisper = function() SetChannel("WHISPER") end,
     preview = function() ns.Preview() end,
     config  = OpenSettings,
@@ -542,6 +563,7 @@ ev:SetScript("OnEvent", function(self, event, unit)
             thanks:SetScript("OnClick", nil)
             SlashCmdList.RPBUFFBEG = function() Print("Off on this character: EzMinion handles your buffs.") end
             self:UnregisterAllEvents()
+            LoadVoices(false)
             return
         end
         RpBuffBegDB = RpBuffBegDB or {}
@@ -551,6 +573,8 @@ ev:SetScript("OnEvent", function(self, event, unit)
         -- First login: borrow the personality this character already has in Campfire Tales, if any.
         local campfire = CampfireTalesForeverChar and CampfireTalesForeverChar.persona
         RpBuffBegCharDB.persona = RpBuffBegCharDB.persona or (ns.PERSONA[campfire] and campfire) or ns.DEFAULT_PERSONA
+        RpBuffBegCharDB.accent = nil -- old per-character accent choice; now always by race
+        LoadVoices(true)
         ApplyPosition()
         ns.BuildSettings()
         local AddFilter = (ChatFrameUtil and ChatFrameUtil.AddMessageEventFilter) or ChatFrame_AddMessageEventFilter

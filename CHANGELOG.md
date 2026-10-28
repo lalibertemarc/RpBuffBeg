@@ -3,6 +3,7 @@
 ## v1.1.0
 
 - **Twice the lines.** Every personality now has 20 asks, 10 refreshes and 16 thank-yous, and 4 asks for each class instead of 2 (so class lines no longer just alternate): 984 lines in all. Gruff mages, timid rogues hiding behind barrels, mercenary priests selling resurrections at fifty silver.
+- **Orc, troll and dwarf accents.** Every line also comes in an orc, troll and dwarf version, same personality, same joke: Lok'tar, mon, and by me beard. Your race picks it, and only your accent is kept in memory. Dwarves call your target "lad" or "lass".
 
 ## v1.0.0
 
