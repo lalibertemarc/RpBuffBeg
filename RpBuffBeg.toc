@@ -1,0 +1,14 @@
+## Interface: 16001, 11509
+## Title: RpBuffBeg
+## Notes: Roleplay buff begging. Ask your target for the buff their class can give you, in /say or a whisper, in your character's own voice.
+## Author: Marc
+## Version: @project-version@
+## IconTexture: Interface\Icons\Spell_Holy_WordFortitude
+## SavedVariables: RpBuffBegDB
+## SavedVariablesPerCharacter: RpBuffBegCharDB
+## OptionalDeps: EzBlessings
+
+Data.lua
+Voices.lua
+Core.lua
+Settings.lua

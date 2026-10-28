@@ -1,0 +1,4 @@
+<Bindings>
+	<Binding name="CLICK RpBuffBegButton:LeftButton" category="RpBuffBeg"/>
+	<Binding name="CLICK RpBuffBegThanksButton:LeftButton" category="RpBuffBeg"/>
+</Bindings>

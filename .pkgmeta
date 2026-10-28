@@ -1,0 +1,10 @@
+package-as: RpBuffBeg
+
+manual-changelog:
+  filename: CHANGELOG.md
+  markup-type: markdown
+
+ignore:
+  - README.md
+  - .luacheckrc
+  - .githooks
