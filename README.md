@@ -10,7 +10,7 @@ A WoW Forever and Classic Era roleplay addon. Target a friendly player whose cla
 
 ## Personalities
 
-Bold, Cheerful, Wise, Gruff, Roguish, Mystic, Scholarly and Timid (the same set as Campfire Tales Forever; a character's Campfire Tales personality is picked up on first login), plus Noble, Charming, Devout and Mercenary, or "A bit of everything". Each has 10 asks, 4 refreshes and 8 thank-yous, plus 2 asks for each class of your own (a timid warrior, a gruff mage, a charming warlock...), used 3 times in 10. 480 lines in all.
+Bold, Cheerful, Wise, Gruff, Roguish, Mystic, Scholarly and Timid (the same set as Campfire Tales Forever; a character's Campfire Tales personality is picked up on first login), plus Noble, Charming, Devout and Mercenary, or "A bit of everything". Each has 20 asks, 10 refreshes and 16 thank-yous, plus 4 asks for each class of your own (a timid warrior, a gruff mage, a charming warlock...), used 3 times in 10. 984 lines in all.
 
 Pick it per character in Esc > Options > AddOns > RpBuffBeg (with a Preview button), by right-clicking the icon, or with `/buffbeg persona <name>`.
 

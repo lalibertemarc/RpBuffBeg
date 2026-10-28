@@ -1,5 +1,9 @@
 # RpBuffBeg
 
+## v1.1.0
+
+- **Twice the lines.** Every personality now has 20 asks, 10 refreshes and 16 thank-yous, and 4 asks for each class instead of 2 (so class lines no longer just alternate): 984 lines in all. Gruff mages, timid rogues hiding behind barrels, mercenary priests selling resurrections at fifty silver.
+
 ## v1.0.0
 
 - **First release.** Target a friendly player whose class can buff you and ask them for it, in `/say`, in your character's own voice: "Um, Bob Smith? Sorry to bother you... could I maybe have Arcane Intellect? Only if it's no trouble." A coin button beside the icon thanks them.
