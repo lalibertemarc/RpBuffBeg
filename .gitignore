@@ -1,1 +1,6 @@
 .release/
+# Lines and personalities from tools/generate.py and tools/new_persona.py. Personal: never commit or package.
+Generated.lua
+tools/generated.json
+tools/personas.json
+__pycache__/

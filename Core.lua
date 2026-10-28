@@ -176,6 +176,15 @@ local function Print(msg)
     DEFAULT_CHAT_FRAME:AddMessage("|cffe6b34dRpBuffBeg|r: " .. msg)
 end
 
+-- Personalities of your own (tools/new_persona.py), from Generated.lua: listed before "mixed".
+for _, p in ipairs(ns.CUSTOM_PERSONAS or {}) do
+    if not ns.PERSONA[p.key] then
+        table.insert(ns.PERSONAS, #ns.PERSONAS, p)
+        ns.PERSONA[p.key] = p
+    end
+end
+ns.CUSTOM_PERSONAS = nil
+
 -- This character's personality key (ns.PERSONA), "mixed" included.
 function ns.PersonaKey()
     local p = RpBuffBegCharDB and RpBuffBegCharDB.persona
@@ -187,31 +196,60 @@ local function Speaker()
     local p = ns.PersonaKey()
     if p ~= "mixed" then return p end
     local keys = {}
-    for k in pairs(ns.VOICES) do keys[#keys + 1] = k end
+    for _, q in ipairs(ns.PERSONAS) do
+        if q.key ~= "mixed" then keys[#keys + 1] = q.key end
+    end
     return keys[math.random(#keys)]
 end
 
--- Login: your race's accent (if any) becomes ns.VOICES / ns.CLASS_ASKS, and every other accent is
+-- Login: your race's accent (if any) becomes ns.VOICES, and every other accent is
 -- dropped, so only one set of lines stays in memory. Nothing to keep at all when standing down.
 local function LoadVoices(keep)
     local accent = keep and ns.RACE_ACCENT[select(2, UnitRace("player"))]
     if accent and ns.ACCENT_VOICES[accent] then
-        ns.VOICES, ns.CLASS_ASKS = ns.ACCENT_VOICES[accent], ns.ACCENT_CLASS_ASKS[accent]
+        ns.VOICES = ns.ACCENT_VOICES[accent]
         ns.accent = accent
     end
-    if not keep then ns.VOICES, ns.CLASS_ASKS = nil, nil end
-    ns.ACCENT_VOICES, ns.ACCENT_CLASS_ASKS = nil, nil
+    -- Generated.lua (tools/generate.py, your install only): keep the set for your accent, plus the
+    -- plain one for personalities not generated in your accent (yet).
+    local gen = keep and ns.GENERATED
+    if gen then
+        ns.GEN = gen[ns.accent or "plain"] or {}
+        for k, v in pairs(gen.plain or {}) do
+            if ns.GEN[k] == nil then ns.GEN[k] = v end
+        end
+    end
+    if not keep then ns.VOICES = nil end
+    ns.ACCENT_VOICES, ns.GENERATED = nil, nil
     collectgarbage()
 end
 
--- Lines of that kind ("asks", "refreshes", "thanks") for the speaker; asks come from your class's own
--- lines ns.CLASS_CHANCE of the time.
-local function Lines(kind, persona)
-    if kind == "asks" then
-        local own = ns.CLASS_ASKS[persona] and ns.CLASS_ASKS[persona][select(2, UnitClass("player"))]
-        if own and math.random() < ns.CLASS_CHANCE then return own end
+-- The hand-written lines with the generated ones, per RpBuffBegDB.lines: "mix" both, "only" the
+-- generated ones, "off" hand-written only. A pool with only one of them (personalities of your own
+-- have no hand-written lines) uses that one whatever the setting.
+local NONE = {}
+local merged = {} -- hand-written lines table -> both
+local function WithGenerated(hand, gen)
+    hand, gen = hand or NONE, gen or NONE
+    local mode = RpBuffBegDB.lines
+    if #gen == 0 or (mode == "off" and #hand > 0) then return hand end
+    if mode == "only" or #hand == 0 then return gen end
+    if not merged[hand] then
+        local all = {}
+        for _, l in ipairs(hand) do all[#all + 1] = l end
+        for _, l in ipairs(gen) do all[#all + 1] = l end
+        merged[hand] = all
     end
-    return ns.VOICES[persona][kind]
+    return merged[hand]
+end
+
+-- Lines of that kind ("asks", "refreshes", "thanks") for the speaker.
+local function Lines(kind, persona)
+    local gen = ns.GEN and ns.GEN[persona]
+    local lines = WithGenerated(ns.VOICES[persona] and ns.VOICES[persona][kind], gen and gen[kind])
+    -- A personality of your own with nothing generated for this kind speaks in the default one.
+    if #lines == 0 then lines = ns.VOICES[ns.DEFAULT_PERSONA][kind] end
+    return lines
 end
 
 -- "lad" or "lass" for the unit, "friend" when its sex is unknown or hidden.
@@ -305,6 +343,15 @@ end
 local function SetChannel(channel)
     RpBuffBegDB.channel = channel
     Print(channel == "WHISPER" and "Lines are now whispered to your target." or "Lines are now said in /say.")
+end
+
+local LINE_MODES = { mix = "hand-written and generated", only = "generated only", off = "hand-written only" }
+
+local function SetLines(mode)
+    if not ns.GEN then return Print("No generated lines for your voice. Run tools/generate.py, then /reload.") end
+    mode = mode:lower()
+    if LINE_MODES[mode] then RpBuffBegDB.lines = mode end
+    Print("Lines: " .. LINE_MODES[RpBuffBegDB.lines] .. ". Change with /buffbeg lines mix | only | off.")
 end
 
 local function Ask()
@@ -511,6 +558,7 @@ local HELP = {
     "/buffbeg persona [name] - show or change your personality",
     "/buffbeg say | whisper - say your lines (default) or whisper them to your target",
     "/buffbeg preview - sample lines in your personality (only you see them)",
+    "/buffbeg lines [mix | only | off] - use the generated lines (Generated.lua) with, instead of, or not at all with the hand-written ones",
     "/buffbeg config - open the options",
     "/buffbeg lock | unlock - lock button position (shift-drag always moves)",
     "/buffbeg reset - reset button position",
@@ -523,6 +571,7 @@ local COMMANDS = {
     say    = function() SetChannel("SAY") end,
     whisper = function() SetChannel("WHISPER") end,
     preview = function() ns.Preview() end,
+    lines   = SetLines,
     config  = OpenSettings,
     lock    = function() RpBuffBegDB.locked = true; Print("Locked.") end,
     unlock  = function() RpBuffBegDB.locked = false; Print("Unlocked.") end,
@@ -569,6 +618,7 @@ ev:SetScript("OnEvent", function(self, event, unit)
         RpBuffBegDB = RpBuffBegDB or {}
         if RpBuffBegDB.locked == nil then RpBuffBegDB.locked = true end
         RpBuffBegDB.channel = RpBuffBegDB.channel or "SAY"
+        RpBuffBegDB.lines = RpBuffBegDB.lines or "mix"
         RpBuffBegCharDB = RpBuffBegCharDB or {}
         -- First login: borrow the personality this character already has in Campfire Tales, if any.
         local campfire = CampfireTalesForeverChar and CampfireTalesForeverChar.persona

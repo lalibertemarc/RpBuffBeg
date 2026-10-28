@@ -29,10 +29,16 @@ ns.DEFAULT_PERSONA = "cheerful"
 -- variant for every line in Voices.lua, same order); everyone else speaks plainly. Picked by race only.
 -- UnitRace's file name -> accent.
 ns.RACE_ACCENT = { Orc = "orc", Troll = "troll", Dwarf = "dwarf" }
--- Filled by the Voices<Accent>.lua files: accent -> same shape as ns.VOICES / ns.CLASS_ASKS. At login
--- your race's accent replaces ns.VOICES / ns.CLASS_ASKS and the rest are dropped (Core.lua LoadVoices).
+-- Filled by the Voices<Accent>.lua files: accent -> same shape as ns.VOICES. At login your race's
+-- accent replaces ns.VOICES and the rest are dropped (Core.lua LoadVoices).
 ns.ACCENT_VOICES = {}
-ns.ACCENT_CLASS_ASKS = {}
+-- Filled by Generated.lua when it exists (tools/generate.py, a local LLM; your install only): accent or
+-- "plain" -> same shape as ns.VOICES. Used with the lines above per RpBuffBegDB.lines (/buffbeg lines
+-- mix | only | off); only your accent's set (and the plain one, for what it lacks) is kept at login.
+-- ns.CUSTOM_PERSONAS: personalities of your own (tools/new_persona.py), same shape as ns.PERSONAS; Core.lua
+-- lists them before "mixed". Their lines are only in ns.GENERATED.
+ns.GENERATED = nil
+ns.CUSTOM_PERSONAS = nil
 
 -- Lines use {name} (target's full name), {buff} (buff name, asks and refreshes), and {me}/{my}: you
 -- alone, or your whole party or raid when you're in one ("give us Arcane Intellect"). Dwarf lines also
@@ -41,9 +47,6 @@ ns.ME = { solo = "me", group = "us" }
 ns.MY = { solo = "my", group = "our" }
 ns.LAD = { [2] = "lad", [3] = "lass" }
 ns.LAD_UNKNOWN = "friend"
-
--- Chance that an ask comes from your class's own lines for your personality (ns.CLASS_ASKS) instead.
-ns.CLASS_CHANCE = 0.3
 
 -- key -> ranks of the buff and of its group version as { spellId, level learned }, lowest rank first
 -- (same IDs and levels in Forever as in Classic Era). Any of them on you counts as given. A group rank is as

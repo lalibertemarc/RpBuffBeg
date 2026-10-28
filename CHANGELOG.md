@@ -1,5 +1,10 @@
 # RpBuffBeg
 
+## Unreleased
+
+- **Class asks retired.** Personalities no longer have extra asks for each class you play: every ask comes from the personality's own 20. 552 lines in all, times four with the accents.
+- **Generated lines (your own install).** `tools/generate.py` has a local LLM (Ollama) write more lines in each personality's voice into `Generated.lua`, and `tools/new_persona.py` adds personalities of your own. Neither is packaged. `/buffbeg lines mix | only | off` picks how generated lines are used.
+
 ## v1.1.0
 
 - **Twice the lines.** Every personality now has 20 asks, 10 refreshes and 16 thank-yous, and 4 asks for each class instead of 2 (so class lines no longer just alternate): 984 lines in all. Gruff mages, timid rogues hiding behind barrels, mercenary priests selling resurrections at fifty silver.

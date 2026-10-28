@@ -13,5 +13,8 @@ Voices.lua
 VoicesOrc.lua
 VoicesTroll.lua
 VoicesDwarf.lua
+#@do-not-package@
+Generated.lua
+#@end-do-not-package@
 Core.lua
 Settings.lua

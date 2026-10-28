@@ -10,7 +10,7 @@ A WoW Forever and Classic Era roleplay addon. Target a friendly player whose cla
 
 ## Personalities
 
-Bold, Cheerful, Wise, Gruff, Roguish, Mystic, Scholarly and Timid (the same set as Campfire Tales Forever; a character's Campfire Tales personality is picked up on first login), plus Noble, Charming, Devout and Mercenary, or "A bit of everything". Each has 20 asks, 10 refreshes and 16 thank-yous, plus 4 asks for each class of your own (a timid warrior, a gruff mage, a charming warlock...), used 3 times in 10. 984 lines in all, times four with the accents below.
+Bold, Cheerful, Wise, Gruff, Roguish, Mystic, Scholarly and Timid (the same set as Campfire Tales Forever; a character's Campfire Tales personality is picked up on first login), plus Noble, Charming, Devout and Mercenary, or "A bit of everything". Each has 20 asks, 10 refreshes and 16 thank-yous: 552 lines in all, times four with the accents below.
 
 Pick it per character in Esc > Options > AddOns > RpBuffBeg (with a Preview button), by right-clicking the icon, or with `/buffbeg persona <name>`.
 
@@ -71,3 +71,15 @@ Use `/buffbeg` or `/rpbb`.
 | `/buffbeg config` | Open the options |
 | `/buffbeg lock` / `unlock` | Lock or unlock the button (Shift-drag always moves it) |
 | `/buffbeg reset` | Reset the button position |
+| `/buffbeg lines [mix \| only \| off]` | With generated lines (below): use them with, instead of, or not at all with the hand-written ones |
+
+## Generated lines (local LLM, for your own install)
+
+`tools/generate.py` has a local model ([Ollama](https://ollama.com), `ollama pull llama3.1:8b`) write more lines in each personality's voice, using the hand-written ones as examples, into `Generated.lua`. `tools/new_persona.py` adds a personality of your own (name, description, a few seed lines) and generates its lines. Both need Python 3 and only touch git-ignored files (`Generated.lua`, `tools/generated.json`, `tools/personas.json`), which are never packaged. `/reload` in game to pick them up.
+
+```
+python tools/generate.py                         # every personality, plain voice
+python tools/generate.py --accent orc,troll,dwarf
+python tools/new_persona.py                      # add or edit a personality of your own
+python tools/new_persona.py --list | --remove <key>
+```
