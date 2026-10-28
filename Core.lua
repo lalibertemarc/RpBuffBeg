@@ -533,6 +533,17 @@ ev:RegisterEvent("PLAYER_LOGIN")
 ev:SetScript("OnEvent", function(self, event, unit)
     if event == "UNIT_AURA" and unit ~= "player" then return end
     if event == "PLAYER_LOGIN" then
+        -- EzMinion already does this job on a warlock (it does nothing on other classes): stand down,
+        -- no buttons, binding or options. Never DisableAddOn from code: it bleeds to other characters.
+        local IsLoaded = (C_AddOns and C_AddOns.IsAddOnLoaded) or IsAddOnLoaded
+        if IsLoaded("EzMinion") and select(2, UnitClass("player")) == "WARLOCK" then
+            btn:Hide() -- hides the thanks button with it
+            btn:SetScript("OnClick", nil)
+            thanks:SetScript("OnClick", nil)
+            SlashCmdList.RPBUFFBEG = function() Print("Off on this character: EzMinion handles your buffs.") end
+            self:UnregisterAllEvents()
+            return
+        end
         RpBuffBegDB = RpBuffBegDB or {}
         if RpBuffBegDB.locked == nil then RpBuffBegDB.locked = true end
         RpBuffBegDB.channel = RpBuffBegDB.channel or "SAY"

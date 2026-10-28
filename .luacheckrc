@@ -21,7 +21,7 @@ read_globals = {
     -- Settings panel
     "Settings", "CreateSettingsListSectionHeaderInitializer", "CreateSettingsButtonInitializer",
     -- Namespaced APIs
-    "C_Spell", "C_UnitAuras", "C_Timer", "C_ChatInfo", "C_Secrets", "issecretvalue",
+    "C_AddOns", "IsAddOnLoaded", "C_Spell", "C_UnitAuras", "C_Timer", "C_ChatInfo", "C_Secrets", "issecretvalue",
     "ChatFrameUtil", "ChatFrame_AddMessageEventFilter",
     -- Global APIs
     "GetBuildInfo", "GetSpellInfo", "GetTime", "UnitBuff", "UnitClass", "UnitName", "UnitLevel", "UnitIsUnit", "UnitExists", "UnitIsPlayer",

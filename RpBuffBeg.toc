@@ -6,7 +6,7 @@
 ## IconTexture: Interface\Icons\Spell_Holy_WordFortitude
 ## SavedVariables: RpBuffBegDB
 ## SavedVariablesPerCharacter: RpBuffBegCharDB
-## OptionalDeps: EzBlessings
+## OptionalDeps: EzBlessings, EzMinion
 
 Data.lua
 Voices.lua

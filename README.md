@@ -32,6 +32,7 @@ You never ask for a buff you already have, unless it's about to drop (20 minutes
 - **Say or whisper.** Lines go out in `/say` by default; switch to whispering them to your target on the options page or with `/buffbeg whisper`. The setting is shared by all your characters.
 - **Clickable names.** Your target's name in your own line becomes a class-colored player link in your chat.
 - **Key bindings** for both under Options > Keybindings > RpBuffBeg. They work with the interface hidden.
+- **Steps aside for [EzMinion](https://github.com/lalibertemarc/EzMinion).** On a warlock with EzMinion loaded, RpBuffBeg stays off (no icon, bindings or options), since EzMinion already orders your buffs. Other classes are unaffected.
 
 Edit the lines in `Voices.lua` (`{name}`, `{buff}`, and `{me}`/`{my}`, which become "us"/"our" in a group) and the buffs in `Data.lua`.
 
