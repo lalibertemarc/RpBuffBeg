@@ -93,6 +93,18 @@ ns.GIVES = {
 -- In Classic Era Kings is a Protection talent, so ask for the blessing every paladin has first.
 if ns.ERA then ns.GIVES.PALADIN = { "WISDOM", "MIGHT", "KINGS" } end
 
+-- Forever camps: each camp object puts a hidden aura on you (listed in the "Camp Benefits" buff) that blocks
+-- the class buff it copies, so theirs would not land. While you have one, that buff counts as given.
+-- key -> the camp object's aura spell ID. No camps in Classic Era.
+ns.CAMP = ns.ERA and {} or {
+    FORT   = 1230124, -- First Aid Kit
+    KINGS  = 1230098, -- Fish Bowl
+    WISDOM = 1230587, -- Mana Well
+    MIGHT  = 1230164, -- Lodestone
+    MOTW   = 1230653, -- Enchanted Lute
+    INT    = 1229513, -- Incense Candle
+}
+
 -- Your class -> buffs it has no use for. Warriors and rogues have no mana; everyone else would
 -- rather have Wisdom than Might (Might is melee only in classic, even for hunters).
 local NO_MANA = { WISDOM = true, SPIRIT = true, INT = true }

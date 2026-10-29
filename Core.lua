@@ -55,6 +55,15 @@ local function BuffAt(unit, i)
     end
 end
 
+-- Seconds left on the aura of that spell on you (0 if it never expires), including hidden ones like the
+-- camp objects'; nil without it or while it's hidden.
+local function AuraLeft(spellId)
+    if not (C_UnitAuras and C_UnitAuras.GetPlayerAuraBySpellID) then return nil end
+    local ok, a = pcall(C_UnitAuras.GetPlayerAuraBySpellID, spellId)
+    if not ok or not a or issecret(a) or issecret(a.expirationTime) then return nil end
+    return a.expirationTime > 0 and a.expirationTime - GetTime() or 0
+end
+
 ---------------------------------------------------------------------------
 -- Spell data
 ---------------------------------------------------------------------------
@@ -93,8 +102,9 @@ end
 ---------------------------------------------------------------------------
 -- Evaluation
 ---------------------------------------------------------------------------
--- key -> { remaining = seconds or nil, rank = learn level or nil } for each tracked buff you have,
--- or nil if the game hides your buffs. rank is nil when the spell ID is unknown or hidden.
+-- key -> { remaining = seconds or nil, rank = learn level or nil, camp } for each tracked buff you have,
+-- or nil if the game hides your buffs. rank is nil when the spell ID is unknown or hidden. camp = a camp
+-- object gives it instead (ns.CAMP), so no one can renew it.
 local function MyBuffs()
     if AurasHidden() then return nil end
     local found, now = {}, GetTime()
@@ -109,6 +119,10 @@ local function MyBuffs()
                 rank = spellId and not issecret(spellId) and rankLevel[spellId] or nil,
             }
         end
+    end
+    for key, spellId in pairs(ns.CAMP) do
+        local left = not found[key] and AuraLeft(spellId)
+        if left then found[key] = { remaining = left > 0 and left or nil, camp = true } end
     end
     return found
 end
@@ -156,8 +170,9 @@ local function Evaluate(unit)
     have = have or {}
     for _, key in ipairs(Wants(class)) do
         local h, best = have[key], BestRank(key, level)
-        local e = { key = key, have = h ~= nil, remaining = h and h.remaining, young = best == 0 }
-        e.expiring = e.remaining ~= nil and e.remaining <= ns.REFRESH_THRESHOLD
+        local e = { key = key, have = h ~= nil, remaining = h and h.remaining, young = best == 0, camp = h and h.camp }
+        -- A camp's buff blocks theirs until it drops, so it's never asked for again early.
+        e.expiring = not e.camp and e.remaining ~= nil and e.remaining <= ns.REFRESH_THRESHOLD
         local outranked = e.expiring and h.rank ~= nil and h.rank > best
         r.list[#r.list + 1] = e
         if e.young and not e.have then r.young = true end
@@ -500,7 +515,8 @@ local function ShowTooltip()
     end
     GameTooltip:AddLine(" ")
     for _, e in ipairs(current.list) do
-        local state = (e.expiring and "|cffffd000have, expiring|r") or (e.have and "|cff40ff40have|r")
+        local state = (e.camp and "|cff40ff40have, from camp|r") or (e.expiring and "|cffffd000have, expiring|r")
+            or (e.have and "|cff40ff40have|r")
             or (e.young and format("|cff808080too young (%d)|r", buff[e.key].level)) or "|cffff4040missing|r"
         GameTooltip:AddDoubleLine(buff[e.key].name, state .. FormatTime(e.remaining), 1, 1, 1)
     end

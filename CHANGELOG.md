@@ -2,6 +2,7 @@
 
 ## Unreleased
 
+- **The campfire already gave.** In Forever, a camp's First Aid Kit, Fish Bowl, Mana Well, Lodestone, Enchanted Lute and Incense Candle each block the class buff they copy, so the target's Fortitude, Kings, Wisdom, Might, Mark of the Wild or Arcane Intellect would not land. Those buffs now count as given while the camp's benefit lasts: you ask for the next buff they can give instead, or nothing. The tooltip marks them "have, from camp".
 - **Class asks retired.** Personalities no longer have extra asks for each class you play: every ask comes from the personality's own 20. 552 lines in all, times four with the accents.
 - **Generated lines (your own install).** `tools/generate.py` has a local LLM (Ollama) write more lines in each personality's voice into `Generated.lua`, and `tools/new_persona.py` adds personalities of your own. Neither is packaged. `/buffbeg lines mix | only | off` picks how generated lines are used.
 
