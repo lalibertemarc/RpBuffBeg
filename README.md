@@ -76,11 +76,13 @@ Use `/buffbeg` or `/rpbb`.
 
 ## Generated lines (local LLM, for your own install)
 
-`tools/generate.py` has a local model ([Ollama](https://ollama.com), `ollama pull llama3.1:8b`) write more lines in each personality's voice, using the hand-written ones as examples, into `Generated.lua`. `tools/new_persona.py` adds a personality of your own (name, description, a few seed lines) and generates its lines. Both need Python 3 and only touch git-ignored files (`Generated.lua`, `tools/generated.json`, `tools/personas.json`), which are never packaged. `/reload` in game to pick them up.
+`tools/generate.py` has a local model ([Ollama](https://ollama.com), `ollama pull llama3.1:8b`) write more lines in each personality's voice, using the hand-written ones as examples, into `Generated.lua`. Accents are translated from those plain lines, with matching plain/accent pairs from the `Voices*.lua` files as examples, so generate plain first. `tools/new_persona.py` adds a personality of your own (name, description, a few seed lines) and generates its lines. Both need Python 3 and only touch git-ignored files (`Generated.lua`, `tools/generated.json`, `tools/personas.json`), which are never packaged. `/reload` in game to pick them up.
 
 ```
 python tools/generate.py                         # every personality, plain voice
-python tools/generate.py --accent orc,troll,dwarf
+python tools/generate.py --accent orc,troll,dwarf # translate the plain lines
 python tools/new_persona.py                      # add or edit a personality of your own
 python tools/new_persona.py --list | --remove <key>
 ```
+
+To say any line of your own in an accent, see AccentTranslator (next to this addon in the workspace), which uses the same example pairs.

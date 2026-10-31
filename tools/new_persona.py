@@ -96,7 +96,7 @@ def create(custom):
     if yes("\nWrite its lines with the local LLM now (a few minutes)?"):
         script = str(g.ROOT / "tools" / "generate.py")
         subprocess.run([sys.executable, script, "--persona", key], check=False)
-        if yes("Also with the orc, troll and dwarf accents (about 3x as long)?", default=False):
+        if yes("Also translate them into the orc, troll and dwarf accents (a few minutes)?", default=False):
             subprocess.run([sys.executable, script, "--persona", key, "--accent", "orc,troll,dwarf"], check=False)
     else:
         print(f"Later: python tools/generate.py --persona {key}")

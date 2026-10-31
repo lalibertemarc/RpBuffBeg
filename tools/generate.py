@@ -1,7 +1,12 @@
 """Writes new RpBuffBeg lines with a local LLM (Ollama) into Generated.lua.
 
 The hand-written lines in Voices*.lua are the examples and the fallback: every pool (personality x
-asks/refreshes/thanks) gets fresh lines in the same voice, accent and placeholders. In game, /buffbeg lines mix|only|off picks how they're used.
+asks/refreshes/thanks) gets fresh lines in the same voice and placeholders. In game, /buffbeg lines
+mix|only|off picks how they're used.
+
+Accents (orc, troll, dwarf) aren't written from scratch: the plain lines you generated (and your seed
+lines) are translated, one by one, with matching line pairs from Voices.lua and Voices<Accent>.lua as
+examples. So generate plain first; rerunning an accent retranslates the whole pool.
 
 Personalities of your own (tools/new_persona.py, kept in tools/personas.json) are generated the same
 way from their description and seed lines, and go into Generated.lua with them.
@@ -11,7 +16,7 @@ Needs Ollama running (https://ollama.com) with the model pulled:  ollama pull ll
     python tools/generate.py                          # every pool, plain voice (no accent)
     python tools/generate.py --persona bold,timid     # just those personalities
     python tools/generate.py --kind thanks --count 30 # just thank-yous, 30 per pool
-    python tools/generate.py --accent dwarf           # dwarf-accent pools (orc, troll, dwarf, all)
+    python tools/generate.py --accent dwarf           # translate the plain lines (orc, troll, dwarf, all)
     python tools/generate.py --append                 # add to the pools instead of replacing them
     python tools/generate.py --list                   # how many generated lines each pool has
 
@@ -35,6 +40,13 @@ PERSONAS_FILE = ROOT / "tools" / "personas.json"
 OUTPUT = ROOT / "Generated.lua"
 SOURCES = {"plain": "Voices.lua", "orc": "VoicesOrc.lua", "troll": "VoicesTroll.lua", "dwarf": "VoicesDwarf.lua"}
 KINDS = ["asks", "refreshes", "thanks"]
+# Must come through a translation unchanged; {me} and {my} may come and go ("me" -> "{me}" is fine).
+KEPT = ("name", "buff")
+# Translating wants less invention than writing.
+TRANSLATE_TEMPERATURE = 0.6
+# Lines per translation request, and plain -> accent example pairs shown with it.
+TRANSLATE_BATCH = 10
+TRANSLATE_PAIRS = 16
 
 # Longest line before {name}/{buff} are filled in. The hand-written ones stay under ~110; a full name
 # and "Greater Blessing of Wisdom" add about 40 more, and /say cuts off at 255.
@@ -54,8 +66,7 @@ ACCENT_STYLE = {
            "the odd Orcish word (Lok'tar, Throm-ka, zug zug, Mak'gora). Write the words normally, not phonetically.",
     "troll": "A Darkspear troll: Caribbean-style dialect ('dere', 'dem', 'mon', 'me gonna', 'ya'), relaxed and "
              "sly, the odd voodoo or loa reference.",
-    "dwarf": "A dwarf: Scottish-style dialect ('aye', 'ye', 'tae', 'wee', 'cannae', 'ken'), ale, stone and beards. "
-             "You may use {lad}, which becomes 'lad' or 'lass' for the target.",
+    "dwarf": "A dwarf: Scottish-style dialect ('aye', 'ye', 'tae', 'wee', 'cannae', 'ken'), ale, stone and beards.",
 }
 
 
@@ -154,6 +165,9 @@ def clean(line, kind, accent):
     for a, b in TYPOGRAPHY.items():
         line = line.replace(a, b)
     line = re.sub(r"^\s*(?:[-*\d.)]+\s+)?", "", line).strip().strip('"').strip()
+    if accent == "dwarf":
+        # "lad" or "lass" depends on who you're talking to: {lad} picks it in game.
+        line = re.sub(r"(?<!\{)\b(lad|lass|laddie|lassie)\b(?!\})", "{lad}", line, flags=re.I)
     if not line.isascii():
         return None, "non-ascii"
     if "|" in line or "*" in line or "\n" in line or "#" in line:
@@ -225,6 +239,87 @@ def generate_pool(args, accent, label, desc, kind, hand, borrow, have):
     return kept[:args.count], rejected
 
 
+def accent_pairs(accent):
+    """kind -> [(persona, plain line, accented line)] from Voices.lua and Voices<Accent>.lua, which hold
+    the same lines in the same order."""
+    plain, accented = parse_voices(ROOT / SOURCES["plain"]), parse_voices(ROOT / SOURCES[accent])
+    pairs = {kind: [] for kind in KINDS}
+    for persona, pools in plain.items():
+        for kind in KINDS:
+            for a, b in zip(pools.get(kind, []), accented.get(persona, {}).get(kind, [])):
+                if a != b:
+                    pairs[kind].append((persona, a, b))
+    return pairs
+
+
+def translate_prompt(accent, label, desc, kind, pairs, lines):
+    keep = "{name} and {buff}" if kind != "thanks" else "{name}"
+    system = (
+        "You rewrite short /say chat lines from a classic World of Warcraft roleplayer into an accent. Keep "
+        "each line's meaning, joke and attitude; change only how it's said, like the examples.\n"
+        f"Accent: {ACCENT_STYLE[accent]}"
+        + (" You may use {lad}, which becomes 'lad' or 'lass' for the target." if accent == "dwarf" else "") + "\n"
+        f"The speaker's personality: {label}. {desc}\n"
+        f"Keep {keep} exactly as written, with curly braces, as often as in the original. Never start a line "
+        "with {me} or {my}. Don't add phrases or tags at the end: about as long as the original. No *actions*, "
+        "no emojis, no quotation marks around the line."
+    )
+    user = (
+        "Examples, plain => accent:\n"
+        + "\n".join(f"{a}\n=> {b}" for _, a, b in pairs)
+        + f"\n\nRewrite these {len(lines)} lines the same way, one per line, in the same order:\n"
+        + "\n".join(f"{i}. {line}" for i, line in enumerate(lines, 1))
+        + '\n\nReply as JSON: {"lines": ["...", "..."]}'
+    )
+    return system, user
+
+
+def translate_pool(args, accent, persona, label, desc, kind, source, pairs):
+    """source lines in the accent, in order; lines whose translation breaks a rule are tried once more
+    and then left out."""
+    done, rejected = {}, {}
+    # Pairs from the same personality first, if it has hand-written ones; then from any.
+    own = [p for p in pairs if p[0] == persona]
+    todo = list(range(len(source)))
+    for _ in range(2):
+        failed = []
+        for start in range(0, len(todo), TRANSLATE_BATCH):
+            batch = todo[start:start + TRANSLATE_BATCH]
+            shown = random.sample(own, min(6, len(own)))
+            shown += random.sample([p for p in pairs if p not in shown], TRANSLATE_PAIRS - len(shown))
+            system, user = translate_prompt(accent, label, desc, kind, shown, [source[i] for i in batch])
+            try:
+                raw = ollama(args.host, args.model, system, user, TRANSLATE_TEMPERATURE)
+            except (json.JSONDecodeError, KeyError):
+                raw = []
+            if len(raw) != len(batch):
+                rejected["wrong count"] = rejected.get("wrong count", 0) + 1
+                failed += batch
+                continue
+            for i, reply in zip(batch, raw):
+                line, why = clean(reply, kind, accent)
+                if not why:
+                    if any(line.count("{%s}" % k) != source[i].count("{%s}" % k) for k in KEPT):
+                        why = "placeholders changed"
+                    elif len(line) > len(source[i]) * 1.4 + 10:
+                        why = "padded"
+                    elif norm(line) == norm(source[i]):
+                        why = "unchanged"
+                if why:
+                    rejected[why] = rejected.get(why, 0) + 1
+                    failed.append(i)
+                    if args.verbose:
+                        print(f"      x {why}: {reply}")
+                else:
+                    done[i] = line
+                    if args.verbose:
+                        print(f"      {source[i]}\n      => {line}")
+        todo = failed
+        if not todo:
+            break
+    return [done[i] for i in sorted(done)], rejected
+
+
 def lua_string(s):
     return '"' + s.replace("\\", "\\\\").replace('"', '\\"') + '"'
 
@@ -269,7 +364,8 @@ def main():
     ap = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     ap.add_argument("--model", default="llama3.1:8b")
     ap.add_argument("--host", default="http://localhost:11434")
-    ap.add_argument("--accent", default="plain", help="plain, orc, troll, dwarf or all (comma-separated)")
+    ap.add_argument("--accent", default="plain",
+                    help="plain, orc, troll, dwarf or all (comma-separated); accents translate the plain lines")
     ap.add_argument("--persona", default="all", help="personality keys, comma-separated, or all")
     ap.add_argument("--kind", default="all", help="asks, refreshes, thanks (comma-separated), or all")
     ap.add_argument("--count", type=int, default=20, help="lines per pool")
@@ -277,7 +373,8 @@ def main():
     ap.add_argument("--temperature", type=float, default=0.9)
     ap.add_argument("--append", action="store_true", help="add to the pools instead of replacing them")
     ap.add_argument("--list", action="store_true", help="show generated line counts and exit")
-    ap.add_argument("--verbose", action="store_true", help="print every rejected line and why")
+    ap.add_argument("--verbose", action="store_true",
+                    help="print every rejected line and why, and every translation next to its original")
     args = ap.parse_args()
 
     cache = load_cache()
@@ -306,6 +403,9 @@ def main():
 
     jobs = []
     for accent in accents:
+        if accent != "plain":
+            jobs += [(accent, persona, kind, None, None) for persona in wanted for kind in kinds]
+            continue
         hand = parse_voices(ROOT / SOURCES[accent])
         for persona in wanted:
             mine = persona in custom
@@ -317,13 +417,26 @@ def main():
 
     print(f"{len(jobs)} pools with {args.model}")
     started = time.time()
+    pairs = {}
     for n, (accent, persona, kind, hand, borrow) in enumerate(jobs, 1):
         target = cache.setdefault(accent, {}).setdefault(persona, {})
-        have = target.get(kind, []) if args.append else []
         label, desc = personas[persona]
         t = time.time()
-        new, rejected = generate_pool(args, accent, label, desc, kind, hand, borrow, have)
-        target[kind] = have + new
+        if accent == "plain":
+            have = target.get(kind, []) if args.append else []
+            new, rejected = generate_pool(args, accent, label, desc, kind, hand, borrow, have)
+            target[kind] = have + new
+        else:
+            # The plain lines this accent doesn't have yet: your seeds (they're plain) and the generated ones.
+            seeds = custom[persona]["seeds"].get(kind, []) if persona in custom else []
+            source = seeds + [l for l in cache.get("plain", {}).get(persona, {}).get(kind, []) if l not in seeds]
+            if not source:
+                print(f"[{n}/{len(jobs)}] {accent} {persona} {kind}: no plain lines to translate, generate plain first")
+                continue
+            if accent not in pairs:
+                pairs[accent] = accent_pairs(accent)
+            new, rejected = translate_pool(args, accent, persona, label, desc, kind, source, pairs[accent][kind])
+            target[kind] = new
         CACHE.write_text(json.dumps(cache, indent=1, ensure_ascii=False), encoding="utf-8")
         write_lua()
         skipped = ", ".join(f"{k} {v}" for k, v in sorted(rejected.items())) or "none"
