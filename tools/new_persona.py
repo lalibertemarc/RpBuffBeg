@@ -1,9 +1,9 @@
-"""Adds a personality of your own to RpBuffBeg, then has the local LLM write its lines.
+"""Adds a personality of your own to Buff Me Please, then has the local LLM write its lines.
 
 You give it a name, a one-sentence description (shown in the personality dropdown, and what the model
 goes by) and a few seed lines of your own: the more you write, the more the generated lines sound like
 you. It's saved in tools/personas.json, written into Generated.lua (your install only, never packaged)
-and shows up in the personality dropdown and /buffbeg persona after a /reload.
+and shows up in the personality dropdown and /buffme persona after a /reload.
 
     python tools/new_persona.py                 # create one, or edit one of yours (type its key)
     python tools/new_persona.py --list          # your personalities
@@ -68,7 +68,7 @@ def ask_seeds(kind, current):
 
 def create(custom):
     builtin = g.parse_personas()
-    print("New personality. Its key is what you type in /buffbeg persona <key>: lower case letters only.")
+    print("New personality. Its key is what you type in /buffme persona <key>: lower case letters only.")
     print("Type one of yours to edit it: " + (", ".join(custom) or "(none yet)") + "\n")
     while True:
         key = ask("Key (e.g. pirate)").lower()
@@ -100,7 +100,7 @@ def create(custom):
             subprocess.run([sys.executable, script, "--persona", key, "--accent", "orc,troll,dwarf"], check=False)
     else:
         print(f"Later: python tools/generate.py --persona {key}")
-    print(f"\nIn game: /reload, then /buffbeg persona {key} (or pick {label} in the options) and /buffbeg preview.")
+    print(f"\nIn game: /reload, then /buffme persona {key} (or pick {label} in the options) and /buffme preview.")
 
 
 def remove(custom, key):

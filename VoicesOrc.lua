@@ -1,4 +1,4 @@
--- RpBuffBeg lines with an orc accent: one variant for every line in Voices.lua, same
+-- Buff Me Please lines with an orc accent: one variant for every line in Voices.lua, same
 -- personalities, kinds and order (see the placeholders there).
 local _, ns = ...
 

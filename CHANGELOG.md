@@ -1,11 +1,12 @@
-# RpBuffBeg
+# Buff Me Please
 
 ## Unreleased
 
-- **Pick your accent.** Your race still picks it by default, but any character can now talk like an orc, a troll or a dwarf, or speak plainly, whatever their race: Accent on the options page, or `/buffbeg accent <race | none | orc | troll | dwarf>`. Each character has their own; a change is heard after a `/reload`.
+- **New name: Buff Me Please** (was RpBuffBeg). The slash command is now `/buffme` (or `/bmp`); key bindings and the options page are under Buff Me Please.
+- **Pick your accent.** Your race still picks it by default, but any character can now talk like an orc, a troll or a dwarf, or speak plainly, whatever their race: Accent on the options page, or `/buffme accent <race | none | orc | troll | dwarf>`. Each character has their own; a change is heard after a `/reload`.
 - **The campfire already gave.** In Forever, a camp's First Aid Kit, Fish Bowl, Mana Well, Lodestone, Enchanted Lute and Incense Candle each block the class buff they copy, so the target's Fortitude, Kings, Wisdom, Might, Mark of the Wild or Arcane Intellect would not land. Those buffs now count as given while the camp's benefit lasts: you ask for the next buff they can give instead, or nothing. The tooltip marks them "have, from camp".
 - **Class asks retired.** Personalities no longer have extra asks for each class you play: every ask comes from the personality's own 20. 552 lines in all, times four with the accents.
-- **Generated lines (your own install).** `tools/generate.py` has a local LLM (Ollama) write more lines in each personality's voice into `Generated.lua`, and `tools/new_persona.py` adds personalities of your own. Neither is packaged. `/buffbeg lines mix | only | off` picks how generated lines are used.
+- **Generated lines (your own install).** `tools/generate.py` has a local LLM (Ollama) write more lines in each personality's voice into `Generated.lua`, and `tools/new_persona.py` adds personalities of your own. Neither is packaged. `/buffme lines mix | only | off` picks how generated lines are used.
 
 ## v1.1.0
 
@@ -15,8 +16,8 @@
 ## v1.0.0
 
 - **First release.** Target a friendly player whose class can buff you and ask them for it, in `/say`, in your character's own voice: "Um, Bob Smith? Sorry to bother you... could I maybe have Arcane Intellect? Only if it's no trouble." A coin button beside the icon thanks them.
-- **Twelve personalities**, picked per character: bold, cheerful, wise, gruff, roguish, mystic, scholarly and timid (a character's Campfire Tales Forever personality is picked up on first login), plus noble, charming, devout and mercenary, or "a bit of everything". Each has its own asks, refreshes and thank-yous, and its own asks for each class you play: 480 lines in all. Change it on the options page (with a preview), by right-clicking the icon, or with `/buffbeg persona`.
+- **Twelve personalities**, picked per character: bold, cheerful, wise, gruff, roguish, mystic, scholarly and timid (a character's Campfire Tales Forever personality is picked up on first login), plus noble, charming, devout and mercenary, or "a bit of everything". Each has its own asks, refreshes and thank-yous, and its own asks for each class you play: 480 lines in all. Change it on the options page (with a preview), by right-clicking the icon, or with `/buffme persona`.
 - **Only what you need.** Paladins are asked for Kings, then Might (warriors and rogues) or Wisdom (everyone else); druids for Mark of the Wild; priests for Fortitude, then Divine Spirit if you use mana; mages for Arcane Intellect if you use mana. Nothing you already have, unless it's about to drop, and nothing your target is too young to know.
-- **Say or whisper.** `/say` by default; whisper your target instead on the options page or with `/buffbeg whisper`.
-- **Plays well with EzBlessings and EzMinion.** On a paladin, the icon sits under the EzBlessings button instead of on top of it. On a warlock with EzMinion, RpBuffBeg stays off and lets your minions do the work.
+- **Say or whisper.** `/say` by default; whisper your target instead on the options page or with `/buffme whisper`.
+- **Plays well with EzBlessings and EzMinion.** On a paladin, the icon sits under the EzBlessings button instead of on top of it. On a warlock with EzMinion, Buff Me Please stays off and lets your minions do the work.
 - Works in WoW Forever and Classic Era. In Era, paladins are asked for Might or Wisdom before Kings (a talent there), and a buff is asked for again with 2 minutes left.

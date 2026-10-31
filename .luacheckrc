@@ -3,12 +3,12 @@ max_line_length = false
 self = false
 
 globals = {
-    "RpBuffBegDB",
-    "RpBuffBegCharDB",
-    "SLASH_RPBUFFBEG1",
-    "SLASH_RPBUFFBEG2",
+    "BuffMePleaseDB",
+    "BuffMePleaseCharDB",
+    "SLASH_BUFFMEPLEASE1",
+    "SLASH_BUFFMEPLEASE2",
     "SlashCmdList",
-    "BINDING_HEADER_RPBUFFBEG",
+    "BINDING_HEADER_BUFFMEPLEASE",
     "_G",
 }
 

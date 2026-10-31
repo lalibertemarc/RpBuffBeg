@@ -1,4 +1,4 @@
--- RpBuffBeg lines with a dwarf accent: one variant for every line in Voices.lua, same
+-- Buff Me Please lines with a dwarf accent: one variant for every line in Voices.lua, same
 -- personalities, kinds and order (see the placeholders there; {lad} is "lad" or "lass" from your target's sex).
 local _, ns = ...
 

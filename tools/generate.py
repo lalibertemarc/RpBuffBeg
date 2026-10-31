@@ -1,7 +1,7 @@
-"""Writes new RpBuffBeg lines with a local LLM (Ollama) into Generated.lua.
+"""Writes new Buff Me Please lines with a local LLM (Ollama) into Generated.lua.
 
 The hand-written lines in Voices*.lua are the examples and the fallback: every pool (personality x
-asks/refreshes/thanks) gets fresh lines in the same voice and placeholders. In game, /buffbeg lines
+asks/refreshes/thanks) gets fresh lines in the same voice and placeholders. In game, /buffme lines
 mix|only|off picks how they're used.
 
 Accents (orc, troll, dwarf) aren't written from scratch: the plain lines you generated (and your seed
@@ -333,10 +333,10 @@ def write_lua():
             pools = cache.setdefault("plain", {}).setdefault(key, {})
             pools[kind] = seeds + [l for l in pools.get(kind, []) if l not in seeds]
     out = [
-        "-- RpBuffBeg: lines written by a local LLM (tools/generate.py), same shape as Voices*.lua, one set",
+        "-- Buff Me Please: lines written by a local LLM (tools/generate.py), same shape as Voices*.lua, one set",
         "-- per accent (\"plain\" = no accent), and personalities of your own (tools/new_persona.py). Rebuilt",
         "-- from tools/generated.json and tools/personas.json: don't edit by hand. Personal: git-ignored, never",
-        "-- packaged. /buffbeg lines picks how they're used.",
+        "-- packaged. /buffme lines picks how they're used.",
         "local _, ns = ...",
         "",
         "ns.CUSTOM_PERSONAS = {",

@@ -1,8 +1,8 @@
--- Options page: Esc > Options > AddOns > RpBuffBeg. Built at login, once the saved variables exist.
+-- Options page: Esc > Options > AddOns > Buff Me Please. Built at login, once the saved variables exist.
 local _, ns = ...
 
 function ns.BuildSettings()
-    local category, layout = Settings.RegisterVerticalLayoutCategory("RpBuffBeg")
+    local category, layout = Settings.RegisterVerticalLayoutCategory("Buff Me Please")
     ns.settingsCategory = category
 
     local function Header(text)
@@ -15,7 +15,7 @@ function ns.BuildSettings()
 
     Header("Your character")
     -- Per character: each of your characters can have a voice of their own.
-    local persona = Settings.RegisterAddOnSetting(category, "RPBUFFBEG_PERSONA", "persona", RpBuffBegCharDB,
+    local persona = Settings.RegisterAddOnSetting(category, "BUFFMEPLEASE_PERSONA", "persona", BuffMePleaseCharDB,
         Settings.VarType.String, "Personality", ns.DEFAULT_PERSONA)
     local function Options()
         local container = Settings.CreateControlTextContainer()
@@ -24,7 +24,7 @@ function ns.BuildSettings()
     end
     Settings.CreateDropdown(category, persona, Options,
         "How this character asks for buffs and says thank you. Each character has their own.")
-    local accent = Settings.RegisterAddOnSetting(category, "RPBUFFBEG_ACCENT", "accent", RpBuffBegCharDB,
+    local accent = Settings.RegisterAddOnSetting(category, "BUFFMEPLEASE_ACCENT", "accent", BuffMePleaseCharDB,
         Settings.VarType.String, "Accent", ns.DEFAULT_ACCENT)
     accent:SetValueChangedCallback(function() ns.AccentNote() end)
     Settings.CreateDropdown(category, accent, function()
@@ -36,7 +36,7 @@ function ns.BuildSettings()
         "Prints a few lines in this personality and accent to your chat. Only you see them.")
 
     Header("Chat")
-    local channel = Settings.RegisterAddOnSetting(category, "RPBUFFBEG_CHANNEL", "channel", RpBuffBegDB,
+    local channel = Settings.RegisterAddOnSetting(category, "BUFFMEPLEASE_CHANNEL", "channel", BuffMePleaseDB,
         Settings.VarType.String, "Speak in", "SAY")
     Settings.CreateDropdown(category, channel, function()
         local container = Settings.CreateControlTextContainer()
@@ -46,13 +46,13 @@ function ns.BuildSettings()
     end, "Where your asks and thank-yous go. Shared by all your characters.")
 
     Header("Button")
-    local locked = Settings.RegisterAddOnSetting(category, "RPBUFFBEG_LOCKED", "locked", RpBuffBegDB,
+    local locked = Settings.RegisterAddOnSetting(category, "BUFFMEPLEASE_LOCKED", "locked", BuffMePleaseDB,
         Settings.VarType.Boolean, "Lock position", true)
     Settings.CreateCheckbox(category, locked, "Shift-drag always moves the button.")
     -- No inline binding rows or search tags: they taint the options search in Forever.
     Button("Key bindings", "Key Bindings",
-        function() Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, "RpBuffBeg") end,
-        "Bind the ask and thank keys in the RpBuffBeg section of the Key Bindings page.")
+        function() Settings.OpenToCategory(Settings.KEYBINDINGS_CATEGORY_ID, "Buff Me Please") end,
+        "Bind the ask and thank keys in the Buff Me Please section of the Key Bindings page.")
 
     Settings.RegisterAddOnCategory(category)
 end

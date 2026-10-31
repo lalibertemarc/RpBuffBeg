@@ -1,11 +1,11 @@
--- RpBuffBeg: asks your friendly target, in /say (or a whisper) and in your character's own voice,
+-- Buff Me Please: asks your friendly target, in /say (or a whisper) and in your character's own voice,
 -- for the buff their class can give you.
 local _, ns = ...
 
 -- The key bindings (Bindings.xml) click the buttons, so they work with the UI hidden (e.g. EzCinematic).
-BINDING_HEADER_RPBUFFBEG = "RpBuffBeg"
-_G["BINDING_NAME_CLICK RpBuffBegButton:LeftButton"] = "Ask your target for a buff"
-_G["BINDING_NAME_CLICK RpBuffBegThanksButton:LeftButton"] = "Thank your target"
+BINDING_HEADER_BUFFMEPLEASE = "Buff Me Please"
+_G["BINDING_NAME_CLICK BuffMePleaseButton:LeftButton"] = "Ask your target for a buff"
+_G["BINDING_NAME_CLICK BuffMePleaseThanksButton:LeftButton"] = "Thank your target"
 
 ---------------------------------------------------------------------------
 -- API compat (old classic globals vs. modern C_ namespaces)
@@ -188,7 +188,7 @@ end
 -- Messages
 ---------------------------------------------------------------------------
 local function Print(msg)
-    DEFAULT_CHAT_FRAME:AddMessage("|cffe6b34dRpBuffBeg|r: " .. msg)
+    DEFAULT_CHAT_FRAME:AddMessage("|cffe6b34dBuff Me Please|r: " .. msg)
 end
 
 -- Personalities of your own (tools/new_persona.py), from Generated.lua: listed before "mixed".
@@ -202,7 +202,7 @@ ns.CUSTOM_PERSONAS = nil
 
 -- This character's personality key (ns.PERSONA), "mixed" included.
 function ns.PersonaKey()
-    local p = RpBuffBegCharDB and RpBuffBegCharDB.persona
+    local p = BuffMePleaseCharDB and BuffMePleaseCharDB.persona
     return ns.PERSONA[p] and p or ns.DEFAULT_PERSONA
 end
 
@@ -219,7 +219,7 @@ end
 
 -- This character's accent choice (ns.ACCENT), "race" included.
 function ns.AccentKey()
-    local a = RpBuffBegCharDB and RpBuffBegCharDB.accent
+    local a = BuffMePleaseCharDB and BuffMePleaseCharDB.accent
     return ns.ACCENT[a] and a or ns.DEFAULT_ACCENT
 end
 
@@ -257,14 +257,14 @@ local function LoadVoices(keep)
     collectgarbage()
 end
 
--- The hand-written lines with the generated ones, per RpBuffBegDB.lines: "mix" both, "only" the
+-- The hand-written lines with the generated ones, per BuffMePleaseDB.lines: "mix" both, "only" the
 -- generated ones, "off" hand-written only. A pool with only one of them (personalities of your own
 -- have no hand-written lines) uses that one whatever the setting.
 local NONE = {}
 local merged = {} -- hand-written lines table -> both
 local function WithGenerated(hand, gen)
     hand, gen = hand or NONE, gen or NONE
-    local mode = RpBuffBegDB.lines
+    local mode = BuffMePleaseDB.lines
     if #gen == 0 or (mode == "off" and #hand > 0) then return hand end
     if mode == "only" or #hand == 0 then return gen end
     if not merged[hand] then
@@ -352,9 +352,9 @@ end
 
 local lastSaid = -math.huge -- GetTime() of your last line
 
--- Whispering instead of saying (RpBuffBegDB.channel, /say by default).
+-- Whispering instead of saying (BuffMePleaseDB.channel, /say by default).
 local function Whispering()
-    return RpBuffBegDB.channel == "WHISPER"
+    return BuffMePleaseDB.channel == "WHISPER"
 end
 
 -- "/say" or "a whisper", for tooltips.
@@ -373,9 +373,9 @@ local function SayOrWarn(msg, name, class)
     if Whispering() then Send(msg, "WHISPER", name) else Send(msg, "SAY") end
 end
 
--- /buffbeg say | whisper: where your lines go.
+-- /buffme say | whisper: where your lines go.
 local function SetChannel(channel)
-    RpBuffBegDB.channel = channel
+    BuffMePleaseDB.channel = channel
     Print(channel == "WHISPER" and "Lines are now whispered to your target." or "Lines are now said in /say.")
 end
 
@@ -384,8 +384,8 @@ local LINE_MODES = { mix = "hand-written and generated", only = "generated only"
 local function SetLines(mode)
     if not ns.GEN then return Print("No generated lines for your voice. Run tools/generate.py, then /reload.") end
     mode = mode:lower()
-    if LINE_MODES[mode] then RpBuffBegDB.lines = mode end
-    Print("Lines: " .. LINE_MODES[RpBuffBegDB.lines] .. ". Change with /buffbeg lines mix | only | off.")
+    if LINE_MODES[mode] then BuffMePleaseDB.lines = mode end
+    Print("Lines: " .. LINE_MODES[BuffMePleaseDB.lines] .. ". Change with /buffme lines mix | only | off.")
 end
 
 local function Ask()
@@ -421,29 +421,29 @@ end
 
 local function PersonaList() return KeyList(ns.PERSONAS) end
 
--- /buffbeg persona [key]: shows or sets this character's personality.
+-- /buffme persona [key]: shows or sets this character's personality.
 local function SetPersona(key)
     key = key:lower()
     if key == "" then
         local p = ns.PERSONA[ns.PersonaKey()]
         Print("Personality: " .. p.label .. ". " .. p.desc)
-        return Print("Change it with /buffbeg persona <" .. PersonaList() .. ">.")
+        return Print("Change it with /buffme persona <" .. PersonaList() .. ">.")
     end
     if not ns.PERSONA[key] then return Print("Unknown personality. Pick one of: " .. PersonaList() .. ".") end
-    RpBuffBegCharDB.persona = key
+    BuffMePleaseCharDB.persona = key
     Print("Personality: " .. ns.PERSONA[key].label .. ". " .. ns.PERSONA[key].desc)
 end
 
--- /buffbeg accent [key]: shows or sets this character's accent.
+-- /buffme accent [key]: shows or sets this character's accent.
 local function SetAccent(key)
     key = key:lower()
     if key ~= "" and not ns.ACCENT[key] then
         return Print("Unknown accent. Pick one of: " .. KeyList(ns.ACCENTS) .. ".")
     end
-    if key ~= "" then RpBuffBegCharDB.accent = key end
+    if key ~= "" then BuffMePleaseCharDB.accent = key end
     local a = ns.ACCENT[ns.AccentKey()]
     Print("Accent: " .. a.label .. ". " .. a.desc)
-    if key == "" then return Print("Change it with /buffbeg accent <" .. KeyList(ns.ACCENTS) .. ">.") end
+    if key == "" then return Print("Change it with /buffme accent <" .. KeyList(ns.ACCENTS) .. ">.") end
     ns.AccentNote()
 end
 
@@ -472,7 +472,7 @@ local function IconButton(name, parent, size)
     return b
 end
 
-local btn = IconButton("RpBuffBegButton", UIParent, 40)
+local btn = IconButton("BuffMePleaseButton", UIParent, 40)
 btn:SetFrameStrata("MEDIUM")
 btn:SetMovable(true)
 btn:SetClampedToScreen(true)
@@ -492,13 +492,13 @@ btn:SetScript("OnClick", function(_, button)
 end)
 
 -- Child of the ask button: moves and fades with it.
-local thanks = IconButton("RpBuffBegThanksButton", btn, 32)
+local thanks = IconButton("BuffMePleaseThanksButton", btn, 32)
 thanks:SetPoint("LEFT", btn, "RIGHT", 8, 0)
 thanks.icon:SetTexture(ns.THANKS_ICON)
 thanks:SetScript("OnClick", Thank)
 
 local function ApplyPosition()
-    local p = RpBuffBegDB.pos
+    local p = BuffMePleaseDB.pos
     btn:ClearAllPoints()
     if p then
         btn:SetPoint(p[1], UIParent, p[2], p[3], p[4])
@@ -513,7 +513,7 @@ end
 
 -- Dragging either button moves the pair.
 local function DragStart()
-    if RpBuffBegDB.locked and not IsShiftKeyDown() then return end
+    if BuffMePleaseDB.locked and not IsShiftKeyDown() then return end
     btn:StartMoving()
     btn.moving = true
 end
@@ -523,7 +523,7 @@ local function DragStop()
     btn.moving = false
     btn:StopMovingOrSizing()
     local point, _, relPoint, x, y = btn:GetPoint()
-    RpBuffBegDB.pos = { point, relPoint, x, y }
+    BuffMePleaseDB.pos = { point, relPoint, x, y }
 end
 
 for _, b in ipairs({ btn, thanks }) do
@@ -562,8 +562,8 @@ local function ShowTooltip()
         GameTooltip:AddLine(current.young and "Too young to give you what you need." or "You have all they can give.", 0.6, 0.6, 0.6)
     end
     GameTooltip:AddLine("Right-click to change your personality (" .. ns.PERSONA[ns.PersonaKey()].label .. ")", 1, 0.82, 0)
-    GameTooltip:AddLine("Key bindings: Options > Keybindings > RpBuffBeg", 0.6, 0.6, 0.6)
-    GameTooltip:AddLine(RpBuffBegDB.locked and "Shift-drag to move" or "Drag to move", 0.6, 0.6, 0.6)
+    GameTooltip:AddLine("Key bindings: Options > Keybindings > Buff Me Please", 0.6, 0.6, 0.6)
+    GameTooltip:AddLine(BuffMePleaseDB.locked and "Shift-drag to move" or "Drag to move", 0.6, 0.6, 0.6)
     GameTooltip:Show()
 end
 
@@ -604,16 +604,16 @@ end
 -- Slash commands
 ---------------------------------------------------------------------------
 local HELP = {
-    "/buffbeg - ask your target for a buff",
-    "/buffbeg thanks - thank your target",
-    "/buffbeg persona [name] - show or change your personality",
-    "/buffbeg accent [race | none | orc | troll | dwarf] - show or change your accent",
-    "/buffbeg say | whisper - say your lines (default) or whisper them to your target",
-    "/buffbeg preview - sample lines in your personality (only you see them)",
-    "/buffbeg lines [mix | only | off] - use the generated lines (Generated.lua) with, instead of, or not at all with the hand-written ones",
-    "/buffbeg config - open the options",
-    "/buffbeg lock | unlock - lock button position (shift-drag always moves)",
-    "/buffbeg reset - reset button position",
+    "/buffme - ask your target for a buff",
+    "/buffme thanks - thank your target",
+    "/buffme persona [name] - show or change your personality",
+    "/buffme accent [race | none | orc | troll | dwarf] - show or change your accent",
+    "/buffme say | whisper - say your lines (default) or whisper them to your target",
+    "/buffme preview - sample lines in your personality (only you see them)",
+    "/buffme lines [mix | only | off] - use the generated lines (Generated.lua) with, instead of, or not at all with the hand-written ones",
+    "/buffme config - open the options",
+    "/buffme lock | unlock - lock button position (shift-drag always moves)",
+    "/buffme reset - reset button position",
 }
 
 local COMMANDS = {
@@ -626,18 +626,18 @@ local COMMANDS = {
     preview = function() ns.Preview() end,
     lines   = SetLines,
     config  = OpenSettings,
-    lock    = function() RpBuffBegDB.locked = true; Print("Locked.") end,
-    unlock  = function() RpBuffBegDB.locked = false; Print("Unlocked.") end,
+    lock    = function() BuffMePleaseDB.locked = true; Print("Locked.") end,
+    unlock  = function() BuffMePleaseDB.locked = false; Print("Unlocked.") end,
     reset   = function()
-        RpBuffBegDB.pos = nil
+        BuffMePleaseDB.pos = nil
         ApplyPosition()
         Print("Position reset.")
     end,
 }
 
-SLASH_RPBUFFBEG1 = "/buffbeg"
-SLASH_RPBUFFBEG2 = "/rpbb"
-SlashCmdList.RPBUFFBEG = function(msg)
+SLASH_BUFFMEPLEASE1 = "/buffme"
+SLASH_BUFFMEPLEASE2 = "/bmp"
+SlashCmdList.BUFFMEPLEASE = function(msg)
     local cmd, arg = strtrim(msg):match("^(%S*)%s*(.-)$")
     local fn = COMMANDS[cmd:lower()]
     if fn then
@@ -663,20 +663,20 @@ ev:SetScript("OnEvent", function(self, event, unit)
             btn:Hide() -- hides the thanks button with it
             btn:SetScript("OnClick", nil)
             thanks:SetScript("OnClick", nil)
-            SlashCmdList.RPBUFFBEG = function() Print("Off on this character: EzMinion handles your buffs.") end
+            SlashCmdList.BUFFMEPLEASE = function() Print("Off on this character: EzMinion handles your buffs.") end
             self:UnregisterAllEvents()
             LoadVoices(false)
             return
         end
-        RpBuffBegDB = RpBuffBegDB or {}
-        if RpBuffBegDB.locked == nil then RpBuffBegDB.locked = true end
-        RpBuffBegDB.channel = RpBuffBegDB.channel or "SAY"
-        RpBuffBegDB.lines = RpBuffBegDB.lines or "mix"
-        RpBuffBegCharDB = RpBuffBegCharDB or {}
+        BuffMePleaseDB = BuffMePleaseDB or {}
+        if BuffMePleaseDB.locked == nil then BuffMePleaseDB.locked = true end
+        BuffMePleaseDB.channel = BuffMePleaseDB.channel or "SAY"
+        BuffMePleaseDB.lines = BuffMePleaseDB.lines or "mix"
+        BuffMePleaseCharDB = BuffMePleaseCharDB or {}
         -- First login: borrow the personality this character already has in Campfire Tales, if any.
         local campfire = CampfireTalesForeverChar and CampfireTalesForeverChar.persona
-        RpBuffBegCharDB.persona = RpBuffBegCharDB.persona or (ns.PERSONA[campfire] and campfire) or ns.DEFAULT_PERSONA
-        RpBuffBegCharDB.accent = ns.ACCENT[RpBuffBegCharDB.accent] and RpBuffBegCharDB.accent or ns.DEFAULT_ACCENT
+        BuffMePleaseCharDB.persona = BuffMePleaseCharDB.persona or (ns.PERSONA[campfire] and campfire) or ns.DEFAULT_PERSONA
+        BuffMePleaseCharDB.accent = ns.ACCENT[BuffMePleaseCharDB.accent] and BuffMePleaseCharDB.accent or ns.DEFAULT_ACCENT
         LoadVoices(true)
         ApplyPosition()
         ns.BuildSettings()

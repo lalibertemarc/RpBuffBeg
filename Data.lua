@@ -1,11 +1,11 @@
--- RpBuffBeg data: personalities, buffs and who can give them. The lines themselves are in Voices.lua.
+-- Buff Me Please data: personalities, buffs and who can give them. The lines themselves are in Voices.lua.
 local _, ns = ...
 
 -- Classic Era (interface 11xxx) instead of Forever (16xxx): shorter buffs, talent-only Kings and Divine Spirit.
 ns.ERA = select(4, GetBuildInfo()) < 16000
 
--- Personalities, in menu order. Each character picks one (Esc > Options > AddOns > RpBuffBeg, or
--- /buffbeg persona <key>). "mixed" draws every line from a random one.
+-- Personalities, in menu order. Each character picks one (Esc > Options > AddOns > Buff Me Please, or
+-- /buffme persona <key>). "mixed" draws every line from a random one.
 ns.PERSONAS = {
     { key = "bold", label = "Bold", desc = "Fearless and a little cocky. Doesn't beg, just expects." },
     { key = "cheerful", label = "Cheerful", desc = "Warm and friendly. Asks with a smile, thanks with a bigger one." },
@@ -27,7 +27,7 @@ ns.DEFAULT_PERSONA = "cheerful"
 
 -- Accents: orcs, trolls and dwarves say the same lines in their own accent (Voices<Accent>.lua, one
 -- variant for every line in Voices.lua, same order); everyone else speaks plainly. Your race picks it
--- unless the character chose another (RpBuffBegCharDB.accent, a key below; /buffbeg accent or the options).
+-- unless the character chose another (BuffMePleaseCharDB.accent, a key below; /buffme accent or the options).
 -- UnitRace's file name -> accent.
 ns.RACE_ACCENT = { Orc = "orc", Troll = "troll", Dwarf = "dwarf" }
 -- Accent choices, in menu order.
@@ -45,7 +45,7 @@ ns.DEFAULT_ACCENT = "race"
 -- replaces ns.VOICES and the rest are dropped (Core.lua LoadVoices).
 ns.ACCENT_VOICES = {}
 -- Filled by Generated.lua when it exists (tools/generate.py, a local LLM; your install only): accent or
--- "plain" -> same shape as ns.VOICES. Used with the lines above per RpBuffBegDB.lines (/buffbeg lines
+-- "plain" -> same shape as ns.VOICES. Used with the lines above per BuffMePleaseDB.lines (/buffme lines
 -- mix | only | off); only your accent's set (and the plain one, for what it lacks) is kept at login.
 -- ns.CUSTOM_PERSONAS: personalities of your own (tools/new_persona.py), same shape as ns.PERSONAS; Core.lua
 -- lists them before "mixed". Their lines are only in ns.GENERATED.

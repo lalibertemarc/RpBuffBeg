@@ -1,4 +1,4 @@
--- RpBuffBeg lines, one set per personality (keys from ns.PERSONAS in Data.lua).
+-- Buff Me Please lines, one set per personality (keys from ns.PERSONAS in Data.lua).
 -- asks: you ask your target for a buff. refreshes: the buff they can give you is about to drop
 -- (ns.REFRESH_THRESHOLD). thanks: the thank-you button. One line is picked at random, never the
 -- same twice in a row. Placeholders: {name}, {buff} (asks and refreshes), {me} and {my} ("us" and
