@@ -217,10 +217,28 @@ local function Speaker()
     return keys[math.random(#keys)]
 end
 
--- Login: your race's accent (if any) becomes ns.VOICES, and every other accent is
+-- This character's accent choice (ns.ACCENT), "race" included.
+function ns.AccentKey()
+    local a = RpBuffBegCharDB and RpBuffBegCharDB.accent
+    return ns.ACCENT[a] and a or ns.DEFAULT_ACCENT
+end
+
+-- The accent that choice speaks in, nil for plain.
+local function ChosenAccent()
+    local a = ns.AccentKey()
+    if a == "race" then return ns.RACE_ACCENT[select(2, UnitRace("player"))] end
+    if a ~= "none" then return a end
+end
+
+-- The other accents are gone from memory, so a new choice is only heard after a /reload.
+function ns.AccentNote()
+    if ChosenAccent() ~= ns.accent then Print("Your new accent is heard after a /reload.") end
+end
+
+-- Login: your accent (if any) becomes ns.VOICES, and every other accent is
 -- dropped, so only one set of lines stays in memory. Nothing to keep at all when standing down.
 local function LoadVoices(keep)
-    local accent = keep and ns.RACE_ACCENT[select(2, UnitRace("player"))]
+    local accent = keep and ChosenAccent()
     if accent and ns.ACCENT_VOICES[accent] then
         ns.VOICES = ns.ACCENT_VOICES[accent]
         ns.accent = accent
@@ -297,6 +315,7 @@ function ns.Preview()
     for _, kind in ipairs({ "asks", "asks", "refreshes", "thanks" }) do
         DEFAULT_CHAT_FRAME:AddMessage("  " .. Line(kind, "Bob Smith", sample))
     end
+    ns.AccentNote()
 end
 
 ---------------------------------------------------------------------------
@@ -393,11 +412,14 @@ local function OpenSettings()
     if ns.settingsCategory then Settings.OpenToCategory(ns.settingsCategory:GetID()) end
 end
 
-local function PersonaList()
+-- "a, b, c" from the keys of ns.PERSONAS or ns.ACCENTS.
+local function KeyList(list)
     local keys = {}
-    for _, p in ipairs(ns.PERSONAS) do keys[#keys + 1] = p.key end
+    for _, p in ipairs(list) do keys[#keys + 1] = p.key end
     return table.concat(keys, ", ")
 end
+
+local function PersonaList() return KeyList(ns.PERSONAS) end
 
 -- /buffbeg persona [key]: shows or sets this character's personality.
 local function SetPersona(key)
@@ -410,6 +432,19 @@ local function SetPersona(key)
     if not ns.PERSONA[key] then return Print("Unknown personality. Pick one of: " .. PersonaList() .. ".") end
     RpBuffBegCharDB.persona = key
     Print("Personality: " .. ns.PERSONA[key].label .. ". " .. ns.PERSONA[key].desc)
+end
+
+-- /buffbeg accent [key]: shows or sets this character's accent.
+local function SetAccent(key)
+    key = key:lower()
+    if key ~= "" and not ns.ACCENT[key] then
+        return Print("Unknown accent. Pick one of: " .. KeyList(ns.ACCENTS) .. ".")
+    end
+    if key ~= "" then RpBuffBegCharDB.accent = key end
+    local a = ns.ACCENT[ns.AccentKey()]
+    Print("Accent: " .. a.label .. ". " .. a.desc)
+    if key == "" then return Print("Change it with /buffbeg accent <" .. KeyList(ns.ACCENTS) .. ">.") end
+    ns.AccentNote()
 end
 
 ---------------------------------------------------------------------------
@@ -572,6 +607,7 @@ local HELP = {
     "/buffbeg - ask your target for a buff",
     "/buffbeg thanks - thank your target",
     "/buffbeg persona [name] - show or change your personality",
+    "/buffbeg accent [race | none | orc | troll | dwarf] - show or change your accent",
     "/buffbeg say | whisper - say your lines (default) or whisper them to your target",
     "/buffbeg preview - sample lines in your personality (only you see them)",
     "/buffbeg lines [mix | only | off] - use the generated lines (Generated.lua) with, instead of, or not at all with the hand-written ones",
@@ -584,6 +620,7 @@ local COMMANDS = {
     [""]    = Ask,
     thanks  = Thank,
     persona = SetPersona,
+    accent  = SetAccent,
     say    = function() SetChannel("SAY") end,
     whisper = function() SetChannel("WHISPER") end,
     preview = function() ns.Preview() end,
@@ -639,7 +676,7 @@ ev:SetScript("OnEvent", function(self, event, unit)
         -- First login: borrow the personality this character already has in Campfire Tales, if any.
         local campfire = CampfireTalesForeverChar and CampfireTalesForeverChar.persona
         RpBuffBegCharDB.persona = RpBuffBegCharDB.persona or (ns.PERSONA[campfire] and campfire) or ns.DEFAULT_PERSONA
-        RpBuffBegCharDB.accent = nil -- old per-character accent choice; now always by race
+        RpBuffBegCharDB.accent = ns.ACCENT[RpBuffBegCharDB.accent] and RpBuffBegCharDB.accent or ns.DEFAULT_ACCENT
         LoadVoices(true)
         ApplyPosition()
         ns.BuildSettings()

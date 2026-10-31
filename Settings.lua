@@ -24,8 +24,16 @@ function ns.BuildSettings()
     end
     Settings.CreateDropdown(category, persona, Options,
         "How this character asks for buffs and says thank you. Each character has their own.")
+    local accent = Settings.RegisterAddOnSetting(category, "RPBUFFBEG_ACCENT", "accent", RpBuffBegCharDB,
+        Settings.VarType.String, "Accent", ns.DEFAULT_ACCENT)
+    accent:SetValueChangedCallback(function() ns.AccentNote() end)
+    Settings.CreateDropdown(category, accent, function()
+        local container = Settings.CreateControlTextContainer()
+        for _, a in ipairs(ns.ACCENTS) do container:Add(a.key, a.label, a.desc) end
+        return container:GetData()
+    end, "The accent this character's lines are said in. Each character has their own; a change is heard after a /reload.")
     Button("Sample lines", "Preview", function() ns.Preview() end,
-        "Prints a few lines in this personality to your chat. Only you see them.")
+        "Prints a few lines in this personality and accent to your chat. Only you see them.")
 
     Header("Chat")
     local channel = Settings.RegisterAddOnSetting(category, "RPBUFFBEG_CHANNEL", "channel", RpBuffBegDB,

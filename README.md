@@ -24,7 +24,7 @@ Orcs, trolls and dwarves don't talk like everyone else, so every one of those li
 
 > Bob Smith! You there. Power Word: Fortitude, on me. I put it to good use. Bloody use. *(bold orc)*
 
-Your race picks the accent (orc, troll or dwarf; everyone else speaks plainly). Only that one set of lines is kept in memory; the others are dropped at login.
+By default your race picks the accent (orc, troll or dwarf; everyone else speaks plainly). Any character can pick another, or none, in Esc > Options > AddOns > RpBuffBeg or with `/buffbeg accent <race | none | orc | troll | dwarf>`: a human who grew up in Ironforge can talk like a dwarf, an orc can speak plainly. Only that one set of lines is kept in memory; the others are dropped at login, so a new accent is heard after a `/reload`.
 
 ## What you ask for
 
@@ -66,6 +66,7 @@ Use `/buffbeg` or `/rpbb`.
 | `/buffbeg` | Ask your target for a buff |
 | `/buffbeg thanks` | Thank your target |
 | `/buffbeg persona [name]` | Show or change your personality |
+| `/buffbeg accent [race \| none \| orc \| troll \| dwarf]` | Show or change your accent (heard after a `/reload`) |
 | `/buffbeg say` / `whisper` | Say your lines (default) or whisper them to your target |
 | `/buffbeg preview` | Sample lines in your personality (only you see them) |
 | `/buffbeg config` | Open the options |

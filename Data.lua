@@ -26,11 +26,23 @@ for _, p in ipairs(ns.PERSONAS) do ns.PERSONA[p.key] = p end
 ns.DEFAULT_PERSONA = "cheerful"
 
 -- Accents: orcs, trolls and dwarves say the same lines in their own accent (Voices<Accent>.lua, one
--- variant for every line in Voices.lua, same order); everyone else speaks plainly. Picked by race only.
+-- variant for every line in Voices.lua, same order); everyone else speaks plainly. Your race picks it
+-- unless the character chose another (RpBuffBegCharDB.accent, a key below; /buffbeg accent or the options).
 -- UnitRace's file name -> accent.
 ns.RACE_ACCENT = { Orc = "orc", Troll = "troll", Dwarf = "dwarf" }
--- Filled by the Voices<Accent>.lua files: accent -> same shape as ns.VOICES. At login your race's
--- accent replaces ns.VOICES and the rest are dropped (Core.lua LoadVoices).
+-- Accent choices, in menu order.
+ns.ACCENTS = {
+    { key = "race", label = "By race", desc = "Orcs, trolls and dwarves use their own accent, everyone else speaks plainly." },
+    { key = "none", label = "None", desc = "Plain lines, whatever your race." },
+    { key = "orc", label = "Orc", desc = "Lok'tar! Short, blunt, and proud of it." },
+    { key = "troll", label = "Troll", desc = "Easy now, mon. Da spirits be watchin'." },
+    { key = "dwarf", label = "Dwarf", desc = "By me beard, lad! Your target is a lad or a lass." },
+}
+ns.ACCENT = {}
+for _, a in ipairs(ns.ACCENTS) do ns.ACCENT[a.key] = a end
+ns.DEFAULT_ACCENT = "race"
+-- Filled by the Voices<Accent>.lua files: accent -> same shape as ns.VOICES. At login your accent
+-- replaces ns.VOICES and the rest are dropped (Core.lua LoadVoices).
 ns.ACCENT_VOICES = {}
 -- Filled by Generated.lua when it exists (tools/generate.py, a local LLM; your install only): accent or
 -- "plain" -> same shape as ns.VOICES. Used with the lines above per RpBuffBegDB.lines (/buffbeg lines
