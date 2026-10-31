@@ -4,6 +4,7 @@
 ## Author: Marc
 ## Version: @project-version@
 ## IconTexture: Interface\Icons\Spell_Holy_WordFortitude
+## X-Curse-Project-ID: 1776126
 ## SavedVariables: BuffMePleaseDB
 ## SavedVariablesPerCharacter: BuffMePleaseCharDB
 ## OptionalDeps: EzBlessings, EzMinion

@@ -1,6 +1,6 @@
 # Buff Me Please
 
-## Unreleased
+## v1.2.0
 
 - **New name: Buff Me Please** (was RpBuffBeg). The slash command is now `/buffme` (or `/bmp`); key bindings and the options page are under Buff Me Please.
 - **Pick your accent.** Your race still picks it by default, but any character can now talk like an orc, a troll or a dwarf, or speak plainly, whatever their race: Accent on the options page, or `/buffme accent <race | none | orc | troll | dwarf>`. Each character has their own; a change is heard after a `/reload`.
